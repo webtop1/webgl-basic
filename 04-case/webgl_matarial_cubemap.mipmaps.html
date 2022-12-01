@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>three.js webgl - materials - cubemap mipmaps</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <link type="text/css" rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <div id="container"></div>
+    <div id="info">
+      <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a>
+      - cubemap customized mipmaps demo.<br />
+      Left: webgl generated mipmaps<br />
+      Right: manual mipmaps<br />
+    </div>
+
+    <!-- Import maps polyfill -->
+    <!-- Remove this when import maps will be widely supported -->
+    <script
+      async
+      src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"
+    ></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "../lib/three/three.module.js",
+          "three/addons/": "../lib/three/jsm/"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+      let container;
+      let camera, scene, renderer;
+      init();
+      animate();
+
+      //load customized cube texture
+      async function loadCubeTextureWithMipmaps() {
+        const path = "textures/cube/angus/";
+        const format = ".jpg";
+        const mipmaps = [];
+        const maxLevel = 8;
+
+        async function loadCubeTexture(urls) {
+          return new Promise(function (resolve) {
+            //加载CubeTexture的一个类。 内部使用ImageLoader来加载文件。
+            new THREE.CubeTextureLoader().load(urls, function (cubeTexture) {
+              resolve(cubeTexture);
+            });
+          });
+        }
+
+        // load mipmaps
+        const pendings = [];
+
+        for (let level = 0; level <= maxLevel; ++level) {
+          const urls = [];
+
+          for (let face = 0; face < 6; ++face) {
+            urls.push(path + "cube_m0" + level + "_c0" + face + format);
+          }
+          const mipmapLevel = level;
+          pendings.push(
+            loadCubeTexture(urls).then(function (cubeTexture) {
+              mipmaps[mipmapLevel] = cubeTexture;
+            })
+          );
+        }
+
+        await Promise.all(pendings);
+        const customizedCubeTexture = mipmaps.shift();
+        //用户所给定的mipmap数组（可选）
+        customizedCubeTexture.mipmaps = mipmaps;
+        //当一个纹素覆盖小于一个像素时，贴图将如何采样。
+        //默认值为THREE.LinearMipmapLinearFilter， 它将使用mipmapping以及三次线性滤镜
+        customizedCubeTexture.minFilter = THREE.LinearMipMapLinearFilter;
+        //当一个纹素覆盖大于一个像素时，贴图将如何采样。
+        //默认值为THREE.LinearFilter， 它将获取四个最接近的纹素，并在他们之间进行双线性插值。
+        //另一个选项是THREE.NearestFilter，它将使用最接近的纹素的值。
+        //请参阅texture constants页面来了解详细信息。
+        customizedCubeTexture.magFilter = THREE.LinearFilter;
+        //是否为纹理生成mipmap（如果可用）。默认为true。 如果你手动生成mipmap，请将其设为false
+        customizedCubeTexture.generateMipmaps = false;
+        //将其设置为true，以便在下次使用纹理时触发一次更新。 这对于设置包裹模式尤其重要。
+        customizedCubeTexture.needsUpdate = true;
+        return customizedCubeTexture;
+      }
+
+      function init() {
+        container = document.createElement("div");
+        document.body.appendChild(container);
+
+        camera = new THREE.PerspectiveCamera(
+          50,
+          window.innerWidth / window.innerHeight,
+          1,
+          10000
+        );
+        camera.position.z = 500;
+
+        scene = new THREE.Scene();
+
+        loadCubeTextureWithMipmaps().then(function (cubeTexture) {
+          //model
+          const sphere = new THREE.SphereGeometry(100, 128, 128);
+          //manual mipmaps
+          // 一个以简单着色（平面或线框）方式来绘制几何体的材质。
+          // 这种材质不受光照的影响。
+          let material = new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            //环境贴图。默认值为null。
+            envMap: cubeTexture,
+          });
+          material.name = "manual mipmaps";
+
+          //表示基于以三角形为polygon mesh（多边形网格）的物体的类。
+          let mesh = new THREE.Mesh(sphere, material);
+          mesh.position.set(110, 50, 30);
+          scene.add(mesh);
+
+          //webgl mipmaps
+          material = material.clone();
+          material.name = "auto mipmaps";
+
+          const autoCubeTexture = cubeTexture.clone();
+          autoCubeTexture.mipmaps = [];
+          autoCubeTexture.generateMipmaps = true;
+          autoCubeTexture.needsUpdate = true;
+
+          material.envMap = autoCubeTexture;
+
+          mesh = new THREE.Mesh(sphere, material);
+          mesh.position.set(-100, 0, 0);
+          scene.add(mesh);
+        });
+
+        //renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        //设置设备像素比。通常用于避免HiDPI设备上绘图模糊
+        renderer.setPixelRatio(window.devicePixelRatio);
+        //将输出canvas的大小调整为(width, height)并考虑设备像素比，且将视口从(0, 0)开始调整到适合大小
+        //将updateStyle设置为false以阻止对canvas的样式做任何改变
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        //controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.minPolarAngle = Math.PI / 4;
+        controls.maxPolarAngle = Math.PI / 1.5;
+
+        window.addEventListener("resize", onWindowResize);
+      }
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      }
+    </script>
+  </body>
+</html>

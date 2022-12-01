@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/gl-renderer/dist/gl-renderer.js"></script>
+</head>
+<body>
+  <canvas id="gl-canvas" width="512" height="512"></canvas>
+  <script>
+    const canvas = document.querySelector('canvas');
+    const renderer = new GlRenderer(canvas, {webgl2: true});
+
+    const vertex = `#version 300 es
+    precision highp float;
+    precision highp int;
+
+    in vec3 a_vertexPosition;
+
+    void main() {
+      gl_PointSize = 1.0;
+      gl_Position = vec4(0.5 * a_vertexPosition, 1);
+    }`;
+
+    const fragment = `#version 300 es
+    precision highp float;
+    out vec4 FragColor;
+    void main() {
+      FragColor = vec4(1, 0, 0, 1);
+    }
+    `;
+    const program = renderer.compileSync(fragment, vertex);
+    renderer.useProgram(program);
+    renderer.setMeshData([
+      {
+        positions: [[0, 1, 0], [-1, -1, 0], [1, -1, 0]],
+        cells: [[0, 1, 2]],
+      },
+    ]);
+    renderer.render();
+  </script>
+  
+</body>
+</html>

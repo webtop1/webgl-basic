@@ -1,0 +1,32 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: tinghai
+ * @Date: 2022-10-13 14:31:50
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Demo</title>
+  <script src="https://unpkg.com/gl-renderer/dist/gl-renderer.js"></script>
+</head>
+<body>
+  <canvas id="gl-canvas" width="512" height="512"></canvas>
+  <script>
+  (async function () {
+    const glCanvas = document.getElementById('gl-canvas');
+    const renderer = new GlRenderer(glCanvas);
+
+    // load fragment shader and createProgram
+    const program = await renderer.load('./index.frag');
+    renderer.useProgram(program);
+
+    // set color to RED
+    renderer.uniforms.color = [1, 0.5, 0.5];
+
+    renderer.render();
+  }());
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: tinghai
+ * @Date: 2022-11-13 09:04:56
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="module">
+      import * as THREE from "../lib/three/three.module.js";
+      var scene = new THREE.Scene();
+
+      const points=[];
+      points.push(new THREE.Vector3(-10,0,0));
+      points.push(new THREE.Vector3(0,10,0));
+      points.push(new THREE.Vector3(10,0,0));
+      var geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+      var material = new THREE.LineDashedMaterial({
+        color: 0x0000ff,
+        linewidth:10,
+        dashSize:5,
+        gapSize:15
+      }); //材质对象Material
+      var line = new THREE.Line(geometry, material); //网格模型对象Mesh
+      scene.add(line); //网格模型添加到场景中
+
+      // var point = new THREE.PointLight(0xffffff);
+      // point.position.set(100, 200, 300); //点光源位置
+      // scene.add(point); //点光源添加到场景中
+      // //环境光
+      // var ambient = new THREE.AmbientLight(0x444444);
+      // scene.add(ambient);
+
+      var width = window.innerWidth; //窗口宽度
+      var height = window.innerHeight; //窗口高度
+      var k = width / height; //窗口宽高比
+      var s = 200; //三维场景显示范围控制系数，系数越大，显示的范围越大
+      //创建相机对象
+      var camera = new THREE.PerspectiveCamera(45, width/height, 1, 500);
+      camera.position.set(0, 0, 100); //设置相机位置
+      camera.lookAt(20,20,-20); //设置相机方向(指向的场景对象)
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(width, height); //设置渲染区域尺寸
+      renderer.setClearColor(0x00ffff, 1); //设置背景颜色
+      document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+      //执行渲染操作   指定场景、相机作为参数
+      renderer.render(scene, camera);
+    </script>
+  </head>
+  <body></body>
+</html>

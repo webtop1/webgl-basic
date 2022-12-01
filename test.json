@@ -1,0 +1,95 @@
+{
+  "loading": false,
+  "status": {
+    "checkFileResultFailureMsg": "",
+    "inputPass": true,
+    "settingPass": true
+  },
+  "taskInfo": {
+    "task_count": 0,
+    "time_to": 0
+  },
+  "checkData": {
+    "loading": false,
+    "result": {
+      "Protein": [
+        {
+          "text": "Warnings:\nHIP form determined for <Residue: HIE 907> in <Chain: A>",
+          "status": 1,
+          "name": "Protein",
+          "item": "Structure"
+        }
+      ],
+      "Ligand": [
+        {
+          "text": "",
+          "status": 0,
+          "name": "Ligands",
+          "item": "ForceField"
+        },
+        {
+          "text": "",
+          "status": 0,
+          "name": "Ligands",
+          "item": "Structure"
+        }
+      ],
+      "Bind pose": [
+        {
+          "text": "",
+          "status": 0,
+          "name": "BindingPose",
+          "item": "Distance"
+        }
+      ],
+      "System": [
+        {
+          "text": "",
+          "status": 0,
+          "name": "System",
+          "item": "System Size",
+          "exraText": 37247
+        },
+        {
+          "item": "Molecule Number",
+          "name": "System",
+          "exraText": 3,
+          "status": 0
+        }
+      ]
+    }
+  },
+  "maxStep": "Docking (Optional)",
+  "step": "Docking (Optional)",
+  "stepChangeLoading": true,
+  "submitType": "pdb-sdf",
+  "inputFiles": null,
+  "task_id": "634632f92d97bc61a128486c",
+  "settingValue": null,
+  "loadingTaskInfo": false,
+  "dockingValue": {
+    "dockingEnabled": false,
+    "dockingFormValues": {
+      "binding_pose_kind": "Auto Calc",
+      "method": "Vina"
+    },
+    "dockingRunningState": {
+      "state": "NONE",
+      "reason": ""
+    },
+    "dockingRecords": [],
+    "selectedDockingRecordNo": -1,
+    "selectedDockingRecordState": "Success",
+    "showDocking3D": false
+  },
+  "networkValue": {
+    "generateNetworkEnabled": false,
+    "generatingState": "NONE",
+    "generatingFailedReason": "",
+    "networkData": null
+  },
+  "taskName": "888",
+  "service_id": "",
+  "BindingposeList": [],
+  "ligandNameList": []
+}

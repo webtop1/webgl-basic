@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script id="2d-fragment-shader" type="notjs">
+      // 片断着色器没有默认精度，所以我们需要设置一个精度
+      // mediump是一个不错的默认值，代表“medium precision”（中等精度）
+      #ifdef GL_ES 
+        precision mediump float; 
+      #endif 
+      uniform sampler2D u_Sampler;
+      varying vec2 v_TexCoord; 
+      void main() {
+          // gl_FragColor是一个片断着色器主要设置的变量
+          gl_FragColor =texture2D(u_Sampler, v_TexCoord);
+      }
+    </script>
+    <script id="2d-vertex-shader" type="notjs">
+      // 一个属性值，将会从缓冲中获取数据
+      attribute vec4 a_Position;
+      attribute vec2 a_TexCoord;
+
+      varying vec2 v_TexCoord; 
+      void main(){ 
+        gl_Position = a_Position; 
+        v_TexCoord = a_TexCoord; 
+      }
+
+    </script>
+    <script>
+      function createShader(gl, type, source) {
+        var shader = gl.createShader(type); // 创建着色器对象
+        gl.shaderSource(shader, source); // 提供数据源
+        gl.compileShader(shader); // 编译 -> 生成着色器
+        var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+        if (success) {
+          return shader;
+        }
+        gl.deleteShader(shader);
+      }
+
+      // 然后我们将这两个着色器 link（链接）到一个 program（着色程序）
+      function createProgram(gl, vertexShader, fragmentShader) {
+        var program = gl.createProgram(); //创建着色程序
+        gl.attachShader(program, vertexShader); // 附加顶点着色器
+        gl.attachShader(program, fragmentShader); // 附加片元着色器
+        gl.linkProgram(program); //链接到着色程序
+        var success = gl.getProgramParameter(program, gl.LINK_STATUS); //判断着色程序是否创建成功
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            alert("Could not initialise shaders");
+        }
+        if (success) {
+          return program;
+        }
+
+        console.log(gl.getProgramInfoLog(program));
+        gl.deleteProgram(program);
+      }
+    </script>
+  </head>
+  <body>
+    <canvas id="canvas" style="width: 500px; height: 500px"></canvas>
+
+    <script type="text/javascript">
+       var gl;
+      var texture;
+      var program;
+      var vertexCoordBuffer;
+      var textureCoordBuffer;
+
+      function loadTexture(image, texture) {
+        var u_Sampler = gl.getUniformLocation(program, "u_Sampler");
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); 
+        // 激活纹理单元0
+        gl.activeTexture(gl.TEXTURE0);
+        // 绑定纹理对象
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        // 设置纹理参数
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        // 设置纹理图片数据
+        gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,image);
+        // 将0号纹理传递给着色器
+        gl.uniform1i(u_Sampler, 0);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        drawScene();
+      }
+
+      // 1:创建所有着色器和程序并寻找参数位置
+      function initProgram(){
+          // 获取着色器字符串
+          var vertexShaderSource = document.getElementById("2d-vertex-shader").text;
+          var fragmentShaderSource =document.getElementById("2d-fragment-shader").text;
+          // 创建，加载，编译着色器
+          var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+          var fragmentShader = createShader( gl,gl.FRAGMENT_SHADER,fragmentShaderSource);
+          console.log("vertexShader:",vertexShader," fragmentShader:",fragmentShader)
+          // 链接连个着色器到着色程序
+          program = createProgram(gl, vertexShader, fragmentShader);
+          // 告诉它用我们之前写好的着色程序（一个着色器对）
+          gl.useProgram(program);
+          console.log("gl",gl," gl.getAttribLocation",gl.getAttribLocation);
+          // 从刚才创建的GLSL着色程序中找到a_position属性值所在的位置
+          program.a_Position = gl.getAttribLocation(program, "a_Position");
+          program.a_TexCoord = gl.getAttribLocation(program, "a_TexCoord");
+      }
+
+      //2:创建缓冲并上传顶点数据
+      function initBuffers(){
+         /**
+        V0 --------V2
+        |           |
+        |           |
+        |           |
+        v1---------V3
+        */
+        //顶点坐标
+        var verticesCoords = new Float32Array([
+           
+            -0.5,  0.5,
+            -0.5, -0.5,
+             0.5,  0.5,
+             0.5, -0.5
+        ]);
+        // 纹理坐标
+        var textureCoords = new Float32Array([
+            0.0, 1.0,
+            0.0, 0.0,
+            1.0, 1.0,
+            1.0, 0.0
+        ]);
+
+        vertexCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexCoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, verticesCoords, gl.STATIC_DRAW);
+
+        textureCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, textureCoords, gl.STATIC_DRAW);
+      }
+     
+      //3:创建纹理并上传纹理数据
+      function initTextures() {
+        texture = gl.createTexture();
+        var image = new Image();
+        image.onload = function () {
+          loadTexture(image, texture);
+        };
+        //图片尺寸必须是2的整数次方
+        image.src = "./logo.png";
+      }
+
+      function drawScene(){
+        // 4:清空并设置视图和其他全局状态（开启深度检测，剔除等等）
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.enable(gl.DEPTH_TEST);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // 告诉WebGL怎样把提供的gl_Position裁剪空间坐标对应到画布像素坐标（屏幕空间）
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        try{
+          //5:启用对应属性,对于想要绘制的每个物体，调用 gl.useProgram 使用需要的程序，设置物体的属性变量
+          gl.enableVertexAttribArray(program.a_TexCoord);
+          gl.enableVertexAttribArray(program.a_Position);
+          //6. 为每个属性调用 gl.bindBuffer, gl.vertexAttribPointer, gl.enableVertexAttribArray
+          gl.bindBuffer(gl.ARRAY_BUFFER, vertexCoordBuffer);
+          var size = 2; // 每次迭代运行提取两个单位数据
+          var type = gl.FLOAT; // 每个单位的数据类型是32位浮点型
+          var normalize = false; // 不需要归一化数据
+          var stride = vertexCoordBuffer.BYTES_PER_ELEMENT * 2; // 0 = 移动单位数量 * 每个单位占用内存（sizeof(type)）每次迭代运行运动多少内存到下一个数据开始点
+          var offset = 0; // 从缓冲起始位置开始读取
+          gl.vertexAttribPointer(program.a_Position, size, type, false, stride, offset);
+          gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+          gl.vertexAttribPointer(program.a_TexCoord,  size, type, false, stride, offset);
+          // 7：设置物体的全局变量，为每个全局变量调用 gl.uniformXXX
+          // 8：调用 gl.activeTexture 和 gl.bindTexture 设置纹理到纹理单元
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+
+          //9：调用 gl.drawArrays 或 gl.drawElements
+          gl.drawArrays(gl.TRIANGLES, 0, 3); 
+        //  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); 
+          gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        }
+        catch(err){
+          alert(err);
+          message(err.description);
+        }
+      }
+
+      function runWebGLApp(){
+        var canvas = document.getElementById("canvas");
+        gl = canvas.getContext("webgl");
+        initProgram();
+        initBuffers();
+        initTextures();
+        // drawScene();
+      }
+      runWebGLApp();
+
+    </script>
+  </body>
+</html>
