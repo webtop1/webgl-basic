@@ -6,7 +6,7 @@ import fireworksVertex from "../shaders/fireworks/vertex.glsl";
 
 export default class Fireworks {
   constructor(color, to, from = { x: 0, y: 0, z: 0 }) {
-    // console.log("创建烟花：", color, to);
+    console.log("创建烟花：", color, to);
     this.color = new Three.Color(color);
 
     // 创建烟花发射的球点

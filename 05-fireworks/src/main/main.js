@@ -13,8 +13,6 @@ import Fireworks from "./firework";
 // 导入水模块
 import { Water } from "three/examples/jsm/objects/Water2";
 
-// 目标：认识shader
-
 //创建gui对象
 const gui = new dat.GUI();
 
@@ -63,14 +61,8 @@ const shaderMaterial = new THREE.ShaderMaterial({
 
 // 初始化渲染器
 const renderer = new THREE.WebGLRenderer({ alpha: true });
-// renderer.shadowMap.enabled = true;
-// renderer.shadowMap.type = THREE.BasicShadowMap;
-// renderer.shadowMap.type = THREE.VSMShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-// renderer.toneMapping = THREE.LinearToneMapping;
-// renderer.toneMapping = THREE.ReinhardToneMapping;
-// renderer.toneMapping = THREE.CineonToneMapping;
 renderer.toneMappingExposure = 0.1;
 
 const gltfLoader = new GLTFLoader();

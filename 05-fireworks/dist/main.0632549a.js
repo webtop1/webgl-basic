@@ -44482,7 +44482,7 @@ var Fireworks = /*#__PURE__*/function () {
       z: 0
     };
     _classCallCheck(this, Fireworks);
-    // console.log("创建烟花：", color, to);
+    console.log("创建烟花：", color, to);
     this.color = new Three.Color(color);
 
     // 创建烟花发射的球点
@@ -45391,8 +45391,6 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 // 导入水模块
 
-// 目标：认识shader
-
 //创建gui对象
 var gui = new dat.GUI();
 
@@ -45438,18 +45436,12 @@ var shaderMaterial = new THREE.ShaderMaterial({
 var renderer = new THREE.WebGLRenderer({
   alpha: true
 });
-// renderer.shadowMap.enabled = true;
-// renderer.shadowMap.type = THREE.BasicShadowMap;
-// renderer.shadowMap.type = THREE.VSMShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-// renderer.toneMapping = THREE.LinearToneMapping;
-// renderer.toneMapping = THREE.ReinhardToneMapping;
-// renderer.toneMapping = THREE.CineonToneMapping;
 renderer.toneMappingExposure = 0.1;
 var gltfLoader = new _GLTFLoader.GLTFLoader();
 var LightBox = null;
-gltfLoader.load("../assets/model/newyears_min.glb", function (gltf) {
+gltfLoader.load("./assets/model/newyears_min.glb", function (gltf) {
   console.log(gltf);
   scene.add(gltf.scene);
 
@@ -45464,7 +45456,7 @@ gltfLoader.load("../assets/model/newyears_min.glb", function (gltf) {
   water.rotation.x = -Math.PI / 2;
   scene.add(water);
 });
-gltfLoader.load("../assets/model/flyLight.glb", function (gltf) {
+gltfLoader.load("./assets/model/flyLight.glb", function (gltf) {
   console.log(gltf);
   LightBox = gltf.scene.children[0];
   LightBox.material = shaderMaterial;

@@ -29,7 +29,6 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 // 导入水模块
-// 目标：认识shader
 //创建gui对象
 var gui = new dat.GUI(); // console.log(THREE);
 // 初始化场景
@@ -67,15 +66,9 @@ var shaderMaterial = new THREE.ShaderMaterial({
 
 var renderer = new THREE.WebGLRenderer({
   alpha: true
-}); // renderer.shadowMap.enabled = true;
-// renderer.shadowMap.type = THREE.BasicShadowMap;
-// renderer.shadowMap.type = THREE.VSMShadowMap;
-
+});
 renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ACESFilmicToneMapping; // renderer.toneMapping = THREE.LinearToneMapping;
-// renderer.toneMapping = THREE.ReinhardToneMapping;
-// renderer.toneMapping = THREE.CineonToneMapping;
-
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.1;
 var gltfLoader = new _GLTFLoader.GLTFLoader();
 var LightBox = null;
